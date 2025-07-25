@@ -26,7 +26,6 @@ fun Home(navController: NavController) {
                 .fillMaxSize()
                 .padding(bottom = 90.dp)
         ) {
-            // Phần TopBar + WeeklyCalendar + Background & Chim
             item {
                 Box(
                     modifier = Modifier
@@ -129,7 +128,6 @@ fun Home(navController: NavController) {
                 }
             }
 
-            // Time selector và danh sách task
             item {
                 Column(
                     modifier = Modifier
@@ -145,7 +143,6 @@ fun Home(navController: NavController) {
             }
         }
 
-        // Bottom Button Bar
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
