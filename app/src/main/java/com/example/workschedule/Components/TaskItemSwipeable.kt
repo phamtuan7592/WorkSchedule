@@ -92,7 +92,7 @@ fun TaskItemInteractive(item: TaskItems) {
             IconButton(
                 onClick = { /* TODO: Reload */ },
                 modifier = Modifier
-                    .size(50g.dp)
+                    .size(50.dp)
                     .padding(end = 16.dp)
                     .background(Color(0xFFFF9800), shape = CircleShape)
             ) {
