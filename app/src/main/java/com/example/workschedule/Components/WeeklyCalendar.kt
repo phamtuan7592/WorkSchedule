@@ -67,9 +67,11 @@ fun WeeklyCalendar(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun TimeSelector() {
+fun TimeSelector(
+    selectedTime: String,
+    onTimeSelected: (String) -> Unit
+) {
     val options = listOf("Evening", "All Day", "Morning")
-    var selectedOption by remember { mutableStateOf("All Day") }
 
     Row(
         modifier = Modifier
@@ -83,9 +85,9 @@ fun TimeSelector() {
                 modifier = Modifier
                     .clip(RoundedCornerShape(50))
                     .background(
-                        if (option == selectedOption) Color(0xFF4A5A4A) else Color.Transparent
+                        if (option == selectedTime) Color(0xFF4A5A4A) else Color.Transparent
                     )
-                    .clickable { selectedOption = option }
+                    .clickable { onTimeSelected(option) }
                     .padding(horizontal = 20.dp, vertical = 8.dp)
             ) {
                 Text(
@@ -96,3 +98,4 @@ fun TimeSelector() {
         }
     }
 }
+

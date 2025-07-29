@@ -2,6 +2,7 @@ package com.example.workschedule.Components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,10 +14,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.workschedule.R
 
 @Composable
-fun ButtonBar() {
+fun ButtonBar(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -64,7 +66,11 @@ fun ButtonBar() {
             Image(
                 painter = painterResource(R.drawable.book),
                 contentDescription = "Book",
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier
+                    .size(30.dp)
+                    .clickable {
+                        navController.navigate("search")
+                    }
             )
         }
 

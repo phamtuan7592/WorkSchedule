@@ -4,7 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,6 +16,8 @@ import com.example.workschedule.Components.*
 
 @Composable
 fun Home(navController: NavController) {
+    var selectedTime by remember { mutableStateOf("All Day") }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -69,7 +71,6 @@ fun Home(navController: NavController) {
                                     .offset(x = 60.dp, y = 2.dp),
                                 contentScale = ContentScale.Fit
                             )
-
                             Image(
                                 painter = painterResource(R.drawable.chim),
                                 contentDescription = null,
@@ -78,7 +79,6 @@ fun Home(navController: NavController) {
                                     .offset(x = 110.dp, y = 10.dp),
                                 contentScale = ContentScale.Fit
                             )
-
                             Image(
                                 painter = painterResource(R.drawable.chim),
                                 contentDescription = null,
@@ -87,12 +87,45 @@ fun Home(navController: NavController) {
                                     .offset(x = 60.dp, y = 40.dp),
                                 contentScale = ContentScale.Fit
                             )
+
+                            when (selectedTime) {
+                                "Morning" -> {
+                                    Image(
+                                        painter = painterResource(R.drawable.sun),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .offset(x = 200.dp, y = (-10).dp),
+                                        contentScale = ContentScale.Fit
+                                    )
+                                }
+                                "All Day" -> {
+                                    Image(
+                                        painter = painterResource(R.drawable.sun1),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .offset(x = 270.dp, y = (-40).dp),
+                                        contentScale = ContentScale.Fit
+                                    )
+                                }
+                                "Evening" -> {
+                                    Image(
+                                        painter = painterResource(R.drawable.moon),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .align(Alignment.Center)
+                                            .offset(y = 20.dp),
+                                        contentScale = ContentScale.Fit
+                                    )
+                                }
+                            }
                         }
                     }
                 }
             }
 
-            // Phần vector1 + tree
             item {
                 Box(
                     modifier = Modifier
@@ -107,7 +140,6 @@ fun Home(navController: NavController) {
                             .height(90.dp),
                         contentScale = ContentScale.FillBounds
                     )
-
                     Image(
                         painter = painterResource(R.drawable.tree),
                         contentDescription = null,
@@ -116,7 +148,6 @@ fun Home(navController: NavController) {
                             .offset(x = 300.dp, y = 8.dp),
                         contentScale = ContentScale.Fit
                     )
-
                     Image(
                         painter = painterResource(R.drawable.tree),
                         contentDescription = null,
@@ -125,6 +156,7 @@ fun Home(navController: NavController) {
                             .offset(x = 350.dp, y = 13.dp),
                         contentScale = ContentScale.Fit
                     )
+
                 }
             }
 
@@ -133,9 +165,9 @@ fun Home(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp) // tăng khoảng cách giữa các task
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    TimeSelector()
+                    TimeSelector(selectedTime = selectedTime, onTimeSelected = { selectedTime = it })
                     Ttems.forEach { task ->
                         TaskItemInteractive(item = task)
                     }
@@ -148,7 +180,7 @@ fun Home(navController: NavController) {
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
         ) {
-            ButtonBar()
+            ButtonBar(navController = navController)
         }
     }
 }

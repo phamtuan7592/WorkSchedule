@@ -27,5 +27,6 @@ fun AppNavigation() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "home"){
         composable("home") { Home(navController) }
+        composable("search") { Search(navController)}
     }
 }
