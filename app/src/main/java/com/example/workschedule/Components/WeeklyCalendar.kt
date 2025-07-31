@@ -12,8 +12,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.TextStyle
 import java.util.*
 
@@ -46,9 +48,7 @@ fun WeeklyCalendar(modifier: Modifier = Modifier) {
                     .clickable { selectedDate = date },
                 contentAlignment = Alignment.Center
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH),
                         color = if (isSelected) Color.White else Color.Black,
@@ -72,6 +72,22 @@ fun TimeSelector(
     onTimeSelected: (String) -> Unit
 ) {
     val options = listOf("Evening", "All Day", "Morning")
+
+    LaunchedEffect(selectedTime) {
+        while (true) {
+            val hour = LocalDateTime.now().hour
+            val realTime = if (hour in 0..11) "Morning" else "Evening"
+
+            if (selectedTime == "All Day") {
+                delay(60_000)
+                onTimeSelected(realTime)
+            } else if (selectedTime != realTime) {
+                onTimeSelected(realTime)
+            }
+
+            delay(60_000)
+        }
+    }
 
     Row(
         modifier = Modifier
@@ -98,4 +114,3 @@ fun TimeSelector(
         }
     }
 }
-

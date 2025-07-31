@@ -13,10 +13,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.workschedule.Components.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+
 
 @Composable
 fun Home(navController: NavController) {
-    var selectedTime by remember { mutableStateOf("All Day") }
+    val currentHour = remember { LocalDateTime.now().hour }
+    val defaultTime = if (currentHour in 0..11) "Morning" else "Evening"
+    var selectedTime by remember { mutableStateOf(defaultTime) }
+
 
     Box(
         modifier = Modifier
