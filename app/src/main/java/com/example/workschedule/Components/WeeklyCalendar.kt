@@ -72,17 +72,18 @@ fun TimeSelector(
     onTimeSelected: (String) -> Unit
 ) {
     val options = listOf("Evening", "All Day", "Morning")
+    var isAutoSelected by remember { mutableStateOf(true) }
+
 
     LaunchedEffect(selectedTime) {
         while (true) {
             val hour = LocalDateTime.now().hour
             val realTime = if (hour in 0..11) "Morning" else "Evening"
 
-            if (selectedTime == "All Day") {
-                delay(60_000)
+            if (selectedTime == "All Day" && isAutoSelected) {
+                delay(30_000)
                 onTimeSelected(realTime)
-            } else if (selectedTime != realTime) {
-                onTimeSelected(realTime)
+                isAutoSelected = true
             }
 
             delay(60_000)
@@ -103,7 +104,10 @@ fun TimeSelector(
                     .background(
                         if (option == selectedTime) Color(0xFF4A5A4A) else Color.Transparent
                     )
-                    .clickable { onTimeSelected(option) }
+                    .clickable {
+                        onTimeSelected(option)
+                        isAutoSelected = false // mark as user override
+                    }
                     .padding(horizontal = 20.dp, vertical = 8.dp)
             ) {
                 Text(
