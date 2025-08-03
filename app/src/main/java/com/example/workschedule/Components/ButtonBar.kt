@@ -82,11 +82,17 @@ fun ButtonBar(navController: NavController) {
                 .align(Alignment.TopCenter)
                 .offset(y = (-30).dp)
                 .background(Color(0xFF7CEC9F), CircleShape)
+                .clickable {
+                    navController.navigate("content")
+                }
         ) {
             Image(
                 painter = painterResource(R.drawable.cong),
                 contentDescription = "Add",
                 modifier = Modifier.size(30.dp)
+                    .clickable {
+                        navController.navigate("content")
+                    }
             )
         }
     }

@@ -28,5 +28,6 @@ fun AppNavigation() {
     NavHost(navController = navController, startDestination = "home"){
         composable("home") { Home(navController) }
         composable("search") { Search(navController)}
+        composable("content") { ContentScreen(navController) }
     }
 }
