@@ -25,15 +25,15 @@ import androidx.navigation.testing.TestNavHostController
 fun HeaderSection(navController: NavController) {
     Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(80.dp),
+            .fillMaxWidth(),
+            //.height(80.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = "Content",
             color = Color.White,
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Medium
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold
         )
 
         Row(
@@ -48,16 +48,10 @@ fun HeaderSection(navController: NavController) {
                 contentDescription = "Back",
                 tint = Color.White,
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(30.dp)
                     .clickable { navController.popBackStack() }
             )
 
-            Text(
-                text = "Save",
-                color = Color(0xFFFF6B6B),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
-            )
         }
     }
 }
@@ -84,7 +78,7 @@ fun CustomTextField(
             .fillMaxWidth()
             .defaultMinSize(minHeight = minHeight)
             .background(
-                color = Color(0xFF4A5A4A),
+                color = Color(0xFF414C46),
                 shape = RoundedCornerShape(20.dp)
             ),
         colors = OutlinedTextFieldDefaults.colors(
@@ -93,8 +87,8 @@ fun CustomTextField(
             focusedBorderColor = Color.White,
             unfocusedBorderColor = Color.White,
             cursorColor = Color.White,
-            focusedContainerColor = Color(0xFF4A5A4A),
-            unfocusedContainerColor = Color(0xFF4A5A4A)
+            focusedContainerColor = Color(0xFF414C46),
+            unfocusedContainerColor = Color(0xFF414C46)
         ),
         shape = RoundedCornerShape(12.dp)
     )
