@@ -26,7 +26,7 @@ fun HeaderSection(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxWidth(),
-            //.height(80.dp),
+        //.height(80.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -300,11 +300,172 @@ fun UnitButton(
     }
 }
 
+@Composable
+fun MultiDayPicker(
+    selectedDays: Set<String>,
+    onSelectionChange: (Set<String>) -> Unit
+) {
+    val allDays = setOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+    val dayAbbreviations = mapOf(
+        "Monday" to "Mon",
+        "Tuesday" to "Tue",
+        "Wednesday" to "Wed",
+        "Thursday" to "Thu",
+        "Friday" to "Fri",
+        "Saturday" to "Sat",
+        "Sunday" to "Sun"
+    )
+
+    val displayText = when {
+        selectedDays.contains("Everyday") -> "Everyday"
+        selectedDays == allDays -> "Everyday"
+        selectedDays.size == 1 -> selectedDays.first()
+        selectedDays.size >= 2 -> {
+            selectedDays.joinToString(", ") { dayAbbreviations[it] ?: it }
+        }
+        else -> "Select days"
+    }
+
+    var expanded by remember { mutableStateOf(false) }
+
+    Column {
+        // Display selected days - style giống như DropdownSection
+        OutlinedTextField(
+            value = displayText,
+            onValueChange = { },
+            readOnly = true,
+            trailingIcon = {
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.clickable { expanded = !expanded }
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = !expanded },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedBorderColor = Color(0xFF3A4A3D),
+                unfocusedBorderColor = Color(0xFF3A4A3D),
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent
+            ),
+            shape = RoundedCornerShape(12.dp)
+        )
+
+        // Dropdown menu
+        if (expanded) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF4A5A4A)),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    // Everyday option
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                if (selectedDays.contains("Everyday")) {
+                                    onSelectionChange(emptySet())
+                                } else {
+                                    onSelectionChange(setOf("Everyday"))
+                                }
+                                expanded = false
+                            }
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = selectedDays.contains("Everyday") || selectedDays == allDays,
+                            onCheckedChange = null,
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = Color(0xFFFF5252),
+                                uncheckedColor = Color.Gray,
+                                checkmarkColor = Color.White
+                            )
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Everyday",
+                            color = Color.White,
+                            fontSize = 16.sp
+                        )
+                    }
+
+                    HorizontalDivider(
+                        color = Color(0xFF5A5A5A),
+                        thickness = 0.5.dp,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+
+                    // Individual days
+                    allDays.forEach { day ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    val newSelection = if (selectedDays.contains("Everyday")) {
+                                        // Nếu đang chọn Everyday, chuyển sang chọn individual days
+                                        setOf(day)
+                                    } else {
+                                        if (selectedDays.contains(day)) {
+                                            selectedDays - day
+                                        } else {
+                                            val updated = selectedDays + day
+                                            // Nếu chọn đủ 7 ngày, chuyển thành Everyday
+                                            if (updated == allDays) {
+                                                setOf("Everyday")
+                                            } else {
+                                                updated
+                                            }
+                                        }
+                                    }
+                                    onSelectionChange(newSelection)
+                                }
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(
+                                checked = !selectedDays.contains("Everyday") && selectedDays.contains(day),
+                                onCheckedChange = null,
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = Color(0xFFFF5252),
+                                    uncheckedColor = Color.Gray,
+                                    checkmarkColor = Color.White,
+                                    disabledCheckedColor = Color.Gray,
+                                    disabledUncheckedColor = Color.Gray.copy(alpha = 0.3f)
+                                ),
+                                enabled = !selectedDays.contains("Everyday")
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = day,
+                                color = if (selectedDays.contains("Everyday")) Color.Gray else Color.White,
+                                fontSize = 16.sp
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Cập nhật Preview để test MultiDayPicker
 @Preview(showBackground = true, backgroundColor = 0xFF121212)
 @Composable
 fun PreviewAllComponents() {
     val context = LocalContext.current
     val navController = remember { TestNavHostController(context) }
+    var selectedDays by remember { mutableStateOf(setOf<String>("Everyday")) }
 
     Column(
         modifier = Modifier
@@ -322,6 +483,9 @@ fun PreviewAllComponents() {
         Spacer(modifier = Modifier.height(16.dp))
         DropdownSection("Option A", {}, listOf("Option A", "Option B"))
         Spacer(modifier = Modifier.height(16.dp))
-        //UnitsSection("Units", {})
+        MultiDayPicker(
+            selectedDays = selectedDays,
+            onSelectionChange = { selectedDays = it }
+        )
     }
 }
