@@ -29,5 +29,6 @@ fun AppNavigation() {
         composable("home") { Home(navController) }
         composable("search") { Search(navController)}
         composable("content") { ContentScreen(navController) }
+        composable("habits") { Habits(navController) }
     }
 }

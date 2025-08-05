@@ -31,7 +31,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.workschedule.Components.TaskItemInteractive
+import com.example.workschedule.Components.TaskItemSimple
 import com.example.workschedule.Components.Ttems
 
 @Composable
@@ -52,7 +52,7 @@ fun Search(navController: NavHostController) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 50.dp, start = 10.dp, end = 50.dp),
+                        .padding(top = 50.dp, start = 25.dp, end = 60.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
@@ -134,7 +134,7 @@ fun Search(navController: NavHostController) {
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Ttems.forEach { task ->
-                        TaskItemInteractive(item = task)
+                        TaskItemSimple(item = task)
                     }
                 }
             }
@@ -154,7 +154,7 @@ fun Search(navController: NavHostController) {
                         shape = RoundedCornerShape(50.dp)
                     )
                     .clickable {
-                        // TODO: xử lý khi bấm nút
+                        navController.navigate("content")
                     }
                     .padding(horizontal = 80.dp, vertical = 20.dp)
             ) {
