@@ -42,7 +42,7 @@ fun Home(navController: NavController) {
                         .padding(bottom = 16.dp)
                 ) {
                     Column {
-                        TopBar()
+                        TopBar(navController = navController)
                         Spacer(modifier = Modifier.height(20.dp))
                         WeeklyCalendar()
                     }

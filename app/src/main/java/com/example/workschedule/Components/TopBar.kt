@@ -1,6 +1,7 @@
 package com.example.workschedule.Components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,10 +15,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.workschedule.R
 
 @Composable
-fun TopBar(){
+fun TopBar(navController: NavController){
     Row (
         modifier = Modifier
             .fillMaxWidth()
@@ -27,14 +29,15 @@ fun TopBar(){
         verticalAlignment = Alignment.CenterVertically
     ){
         Image(
-            painter = painterResource(R.drawable.icon),
+            painter = painterResource(R.drawable.today),
             contentDescription = "icon",
             modifier = Modifier
-                .size(48.dp)
+                .size(28.dp)
+                .clickable { navController.navigate("calendar") }
         )
         Text(
-            text = "Home",
-            fontSize = 48.sp,
+            text = "Work Schedule",
+            fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
         )
 
@@ -42,7 +45,7 @@ fun TopBar(){
             painter = painterResource(R.drawable.settings),
             contentDescription = "settings",
             modifier = Modifier
-                .size(48.dp)
+                .size(28.dp)
         )
 
     }

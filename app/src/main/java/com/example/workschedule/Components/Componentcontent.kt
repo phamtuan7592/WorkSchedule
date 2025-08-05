@@ -1,5 +1,6 @@
 package com.example.workschedule.Components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -12,7 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -20,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.testing.TestNavHostController
+import com.example.workschedule.R
 
 @Composable
 fun HeaderSection(navController: NavController) {
@@ -43,13 +47,13 @@ fun HeaderSection(navController: NavController) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
-                tint = Color.White,
+            Image(
+                painter = painterResource(R.drawable.back1),
+                contentDescription = "back",
                 modifier = Modifier
                     .size(30.dp)
-                    .clickable { navController.popBackStack() }
+                    .clickable { navController.popBackStack() },
+                contentScale = ContentScale.FillBounds
             )
 
         }

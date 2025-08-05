@@ -52,7 +52,11 @@ fun ButtonBar(navController: NavController) {
             Image(
                 painter = painterResource(R.drawable.mountain),
                 contentDescription = "Mountain",
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier
+                    .size(30.dp)
+                    .clickable{
+                        navController.navigate("habits")
+                    }
             )
 
             Spacer(modifier = Modifier.size(50.dp))

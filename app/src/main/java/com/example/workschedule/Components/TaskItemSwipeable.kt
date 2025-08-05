@@ -7,24 +7,66 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
+// Dùng để hiển thị task có thể vuốt hai chiều (ví dụ Play / Done bên trái, Reload bên phải)
 @Composable
 fun TaskItemInteractive(item: TaskItems) {
-    var offsetX by remember { mutableStateOf(0f) }
-    val animatedOffsetX by animateFloatAsState(targetValue = offsetX, label = "")
+    SwipeableTaskItem(
+        item = item,
+        swipeRightContent = {
+            IconAction(Icons.Default.PlayArrow, "Play", Color(0xFF007BFF)) { /* TODO */ }
+            Spacer(Modifier.width(12.dp))
+            IconAction(Icons.Default.Check, "Done", Color(0xFF00D26A)) { /* TODO */ }
+        },
+        swipeLeftContent = {
+            IconAction(Icons.Default.Refresh, "Reload", Color(0xFFFF9800), tint = Color.Black) { /* TODO */ }
+        },
+        enableRightSwipe = true
+    )
+}
 
-    val maxSwipeRight = 350f
+// Dùng để hiển thị task có thể vuốt trái để xóa
+@Composable
+fun TaskItemDeletable(item: TaskItems) {
+    SwipeableTaskItem(
+        item = item,
+        swipeLeftContent = {
+            IconAction(Icons.Default.Delete, "Delete", Color.Red, tint = Color.Black) { /* TODO */ }
+        },
+        enableRightSwipe = false
+    )
+}
+
+// Dùng để hiển thị task đơn giản, không vuốt
+@Composable
+fun TaskItemSimple(item: TaskItems) {
+    TaskCard(item)
+}
+
+// Composable dùng chung cho Task có vuốt
+@Composable
+fun SwipeableTaskItem(
+    item: TaskItems,
+    swipeRightContent: (@Composable RowScope.() -> Unit)? = null,
+    swipeLeftContent: (@Composable () -> Unit)? = null,
+    enableRightSwipe: Boolean
+) {
+    var offsetX by remember { mutableStateOf(0f) }
+    val animatedOffsetX by animateFloatAsState(offsetX, label = "")
+
+    val maxSwipeRight = if (enableRightSwipe) 350f else 0f
     val maxSwipeLeft = -200f
 
     Box(
@@ -46,87 +88,80 @@ fun TaskItemInteractive(item: TaskItems) {
                 )
             }
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Row(
-                modifier = Modifier.padding(start = 16.dp)
+        // Vuốt phải: các nút bên trái
+        if (swipeRightContent != null) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.CenterStart
             ) {
-                IconButton(
-                    onClick = { /* TODO */ },
-                    modifier = Modifier
-                        .size(50.dp)
-                        .background(Color(0xFF007BFF), shape = MaterialTheme.shapes.medium)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "Play",
-                        tint = Color.White
-                    )
-                }
+                Row(modifier = Modifier.padding(start = 16.dp), content = swipeRightContent)
+            }
+        }
 
-                Spacer(modifier = Modifier.width(12.dp))
-
-                IconButton(
-                    onClick = { /* TODO */ },
-                    modifier = Modifier
-                        .size(50.dp)
-                        .background(Color(0xFF00D26A), shape = MaterialTheme.shapes.medium)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = "Done",
-                        tint = Color.White
-                    )
+        // Vuốt trái: các nút bên phải
+        if (swipeLeftContent != null) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Box(modifier = Modifier.padding(end = 16.dp)) {
+                    swipeLeftContent()
                 }
             }
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = Alignment.CenterEnd
-        ) {
-            IconButton(
-                onClick = { /* TODO: Reload */ },
-                modifier = Modifier
-                    .size(50.dp)
-                    .padding(end = 16.dp)
-                    .background(Color(0xFFFF9800), shape = CircleShape)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = "Reload",
-                    tint = Color.Black
-                )
-            }
-        }
-
+        // Nội dung chính
         Box(
             modifier = Modifier
                 .offset { IntOffset(animatedOffsetX.roundToInt(), 0) }
                 .fillMaxWidth()
-                .background(Color(0xFF2D2D2D), shape = RoundedCornerShape(16.dp))
-                .padding(horizontal = 16.dp, vertical = 14.dp)
         ) {
-            Column {
-                Text(
-                    text = item.title,
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = item.desc,
-                    color = Color.LightGray,
-                    fontSize = 14.sp
-                )
-            }
+            TaskCard(item)
         }
+    }
+}
+
+// Dùng chung để hiển thị card task
+@Composable
+fun TaskCard(item: TaskItems) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF2D2D2D), shape = RoundedCornerShape(16.dp))
+            .padding(horizontal = 16.dp, vertical = 14.dp)
+    ) {
+        Column {
+            Text(
+                text = item.title,
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = item.desc,
+                color = Color.LightGray,
+                fontSize = 14.sp
+            )
+        }
+    }
+}
+
+// Nút icon được tái sử dụng
+@Composable
+fun IconAction(
+    icon: ImageVector,
+    desc: String,
+    bgColor: Color,
+    tint: Color = Color.White,
+    onClick: () -> Unit
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = Modifier
+            .size(50.dp)
+            .background(bgColor, shape = CircleShape)
+    ) {
+        Icon(imageVector = icon, contentDescription = desc, tint = tint)
     }
 }
