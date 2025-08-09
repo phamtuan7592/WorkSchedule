@@ -2,6 +2,7 @@ package com.example.workschedule
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,8 +21,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.workschedule.Components.*
+import com.example.workschedule.model.Schedule
+import com.example.workschedule.network.ScheduleApi
+import com.example.workschedule.viewmodel.ScheduleViewModel
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -30,6 +36,9 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ContentScreen(navController: NavController) {
     val context = LocalContext.current
+    val viewModel: ScheduleViewModel = viewModel()
+
+    val coroutineScope = rememberCoroutineScope()
 
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -64,6 +73,17 @@ fun ContentScreen(navController: NavController) {
                             println("Selected days: $selectedDays")
                             println("Selected date: $selectedDate")
                             println("Selected time: $selectedTime")
+
+                            viewModel.saveSchedule(
+                                context = context,
+                                title = title,
+                                description = description,
+                                repeatEnabled = repeatEnabled,
+                                selectedDays = selectedDays,
+                                selectedTime = selectedTime,
+                                endDateEnabled = endDateEnabled,
+                                selectedDate = selectedDate
+                            )
                         }
                         .padding(vertical = 20.dp),
                     contentAlignment = Alignment.Center
@@ -72,7 +92,20 @@ fun ContentScreen(navController: NavController) {
                         text = "Save",
                         fontSize = 25.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFFFF6B6B)
+                        color = Color(0xFFFF6B6B),
+                        modifier = Modifier
+                            .clickable {
+                                viewModel.saveSchedule(
+                                    context = context,
+                                    title = title,
+                                    description = description,
+                                    repeatEnabled = repeatEnabled,
+                                    selectedDays = selectedDays,
+                                    selectedTime = selectedTime,
+                                    endDateEnabled = endDateEnabled,
+                                    selectedDate = selectedDate
+                                )
+                            }
                     )
                 }
             }
@@ -88,7 +121,6 @@ fun ContentScreen(navController: NavController) {
             HeaderSection(navController = navController)
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Title + Description
             SectionCard {
                 CustomTextField(
                     value = title,
@@ -106,10 +138,7 @@ fun ContentScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Sound + Repeat
             SectionCard {
-//                SoundSection(soundEnabled = soundEnabled)
-//                Spacer(modifier = Modifier.height(20.dp))
                 ToggleRow("Repeat", repeatEnabled) { repeatEnabled = it }
                 if (repeatEnabled) {
                     Spacer(modifier = Modifier.height(16.dp))
@@ -122,7 +151,6 @@ fun ContentScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // End Date Picker
             SectionCard {
                 ToggleRow("End date", endDateEnabled) { endDateEnabled = it }
 
@@ -136,9 +164,7 @@ fun ContentScreen(navController: NavController) {
                             .clickable { showDatePicker = true }
                             .padding(16.dp)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Default.DateRange,
                                 contentDescription = "Calendar Icon",
@@ -168,9 +194,7 @@ fun ContentScreen(navController: NavController) {
                             today.dayOfMonth
                         )
                         dialog.datePicker.minDate = System.currentTimeMillis()
-                        dialog.setOnDismissListener {
-                            showDatePicker = false
-                        }
+                        dialog.setOnDismissListener { showDatePicker = false }
                         dialog.show()
                     }
                 }
@@ -178,7 +202,6 @@ fun ContentScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Time Picker
             SectionCard {
                 Text(
                     text = "Time of the day",
@@ -194,9 +217,7 @@ fun ContentScreen(navController: NavController) {
                         .clickable { showTimePicker = true }
                         .padding(16.dp)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Schedule,
                             contentDescription = "Time Icon",
@@ -225,9 +246,7 @@ fun ContentScreen(navController: NavController) {
                         now.minute,
                         true
                     )
-                    dialog.setOnDismissListener {
-                        showTimePicker = false
-                    }
+                    dialog.setOnDismissListener { showTimePicker = false }
                     dialog.show()
                 }
             }
