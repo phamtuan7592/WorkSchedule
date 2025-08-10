@@ -4,12 +4,16 @@ import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.example.workschedule.model.Schedule
 import com.example.workschedule.repository.ScheduleRepository
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
+import java.time.LocalTime
 
-class ScheduleViewModel(private val repository: ScheduleRepository = ScheduleRepository()) : ViewModel() {
+class ScheduleViewModel(
+    private val repository: ScheduleRepository = ScheduleRepository()
+) : ViewModel() {
 
     fun saveSchedule(
         context: Context,
@@ -18,25 +22,29 @@ class ScheduleViewModel(private val repository: ScheduleRepository = ScheduleRep
         selectedDays: Set<String>,
         endDateEnabled: Boolean,
         selectedDate: Any?,
-        selectedTime: java.time.LocalTime?,
-        repeatEnabled: Boolean
+        selectedTime: LocalTime?,
+        repeatEnabled: Boolean,
+        navController: NavController
     ) {
         viewModelScope.launch {
-            if (title.isBlank()) {
-                Toast.makeText(context, "Please enter a title", Toast.LENGTH_SHORT).show()
-                return@launch
-            }
-            if (description.isBlank()) {
-                Toast.makeText(context, "Please enter a description", Toast.LENGTH_SHORT).show()
-                return@launch
-            }
-            if (repeatEnabled && selectedDays.isEmpty()) {
-                Toast.makeText(context, "Please select repeat days", Toast.LENGTH_SHORT).show()
-                return@launch
-            }
-            if (selectedTime == null) {
-                Toast.makeText(context, "Please select a time", Toast.LENGTH_SHORT).show()
-                return@launch
+            // Validate input
+            when {
+                title.isBlank() -> {
+                    showToast(context, "Please enter a title")
+                    return@launch
+                }
+                description.isBlank() -> {
+                    showToast(context, "Please enter a description")
+                    return@launch
+                }
+                repeatEnabled && selectedDays.isEmpty() -> {
+                    showToast(context, "Please select repeat days")
+                    return@launch
+                }
+                selectedTime == null -> {
+                    showToast(context, "Please select a time")
+                    return@launch
+                }
             }
 
             val request = Schedule(
@@ -48,7 +56,17 @@ class ScheduleViewModel(private val repository: ScheduleRepository = ScheduleRep
             )
 
             val success = repository.addSchedule(request)
-            Toast.makeText(context, if (success) "Saved successfully" else "Failed to save", Toast.LENGTH_SHORT).show()
+
+            if (success) {
+                showToast(context, "Saved successfully")
+                navController.navigate("habits")
+            } else {
+                showToast(context, "Failed to save")
+            }
         }
+    }
+
+    private fun showToast(context: Context, message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 }

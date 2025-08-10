@@ -82,7 +82,9 @@ fun ContentScreen(navController: NavController) {
                                 selectedDays = selectedDays,
                                 selectedTime = selectedTime,
                                 endDateEnabled = endDateEnabled,
-                                selectedDate = selectedDate
+                                selectedDate = selectedDate,
+                                navController = navController
+
                             )
                         }
                         .padding(vertical = 20.dp),
@@ -103,7 +105,9 @@ fun ContentScreen(navController: NavController) {
                                     selectedDays = selectedDays,
                                     selectedTime = selectedTime,
                                     endDateEnabled = endDateEnabled,
-                                    selectedDate = selectedDate
+                                    selectedDate = selectedDate,
+                                    navController = navController
+
                                 )
                             }
                     )

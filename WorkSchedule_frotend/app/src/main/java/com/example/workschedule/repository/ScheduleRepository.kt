@@ -5,5 +5,4 @@ import com.example.workschedule.network.ScheduleApi
 
 class ScheduleRepository {
     suspend fun addSchedule(schedule: Schedule) = ScheduleApi.postSchedule(schedule)
-
 }
