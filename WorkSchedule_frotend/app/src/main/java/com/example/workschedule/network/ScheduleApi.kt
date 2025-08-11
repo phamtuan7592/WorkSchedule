@@ -1,6 +1,7 @@
 package com.example.workschedule.network
 
 import com.example.workschedule.model.Schedule
+import io.ktor.client.call.body
 import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
@@ -17,6 +18,16 @@ object ScheduleApi {
         } catch (e: Exception) {
             e.printStackTrace()
             false
+        }
+    }
+
+    suspend fun getSchedules(): List<Schedule> {
+        return try {
+            val response = NetworkClient.httpClient.get("http://10.0.2.2:8080/schedule")
+            response.body()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
         }
     }
 }

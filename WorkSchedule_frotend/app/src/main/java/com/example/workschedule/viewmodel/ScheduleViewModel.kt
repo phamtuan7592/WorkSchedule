@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.workschedule.model.Schedule
 import com.example.workschedule.repository.ScheduleRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 import java.time.LocalTime
@@ -14,6 +16,15 @@ import java.time.LocalTime
 class ScheduleViewModel(
     private val repository: ScheduleRepository = ScheduleRepository()
 ) : ViewModel() {
+
+    private  val _schedules = MutableStateFlow<List<Schedule>>(emptyList())
+    val schedule: StateFlow<List<Schedule>> = _schedules
+
+    fun getSchedules(){
+        viewModelScope.launch {
+            _schedules.value = repository.getSchedules()
+        }
+    }
 
     fun saveSchedule(
         context: Context,

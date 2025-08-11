@@ -18,11 +18,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.unit.dp
+import com.example.workschedule.model.Schedule
 import kotlin.math.roundToInt
 
 // Dùng để hiển thị task có thể vuốt hai chiều (ví dụ Play / Done bên trái, Reload bên phải)
 @Composable
-fun TaskItemInteractive(item: TaskItems) {
+fun TaskItemInteractive(item: Schedule) {
     SwipeableTaskItem(
         item = item,
         swipeRightContent = {
@@ -39,7 +40,7 @@ fun TaskItemInteractive(item: TaskItems) {
 
 // Dùng để hiển thị task có thể vuốt trái để xóa
 @Composable
-fun TaskItemDeletable(item: TaskItems) {
+fun TaskItemDeletable(item: Schedule) {
     SwipeableTaskItem(
         item = item,
         swipeLeftContent = {
@@ -51,16 +52,16 @@ fun TaskItemDeletable(item: TaskItems) {
 
 // Dùng để hiển thị task đơn giản, không vuốt
 @Composable
-fun TaskItemSimple(item: TaskItems) {
+fun TaskItemSimple(item: Schedule) {
     TaskCard(item)
 }
 
 // Composable dùng chung cho Task có vuốt
 @Composable
 fun SwipeableTaskItem(
-    item: TaskItems,
-    swipeRightContent: (@Composable RowScope.() -> Unit)? = null,
-    swipeLeftContent: (@Composable () -> Unit)? = null,
+    item: Schedule,
+    swipeRightContent: @Composable (RowScope.() -> Unit)? = null,
+    swipeLeftContent: @Composable (() -> Unit)? = null,
     enableRightSwipe: Boolean
 ) {
     var offsetX by remember { mutableStateOf(0f) }
@@ -123,7 +124,7 @@ fun SwipeableTaskItem(
 
 // Dùng chung để hiển thị card task
 @Composable
-fun TaskCard(item: TaskItems) {
+fun TaskCard(item: Schedule) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -139,7 +140,7 @@ fun TaskCard(item: TaskItems) {
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = item.desc,
+                text = item.description,
                 color = Color.LightGray,
                 fontSize = 14.sp
             )

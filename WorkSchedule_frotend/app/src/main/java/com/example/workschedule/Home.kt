@@ -174,9 +174,9 @@ fun Home(navController: NavController) {
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     TimeSelector(selectedTime = selectedTime, onTimeSelected = { selectedTime = it })
-                    Ttems.forEach { task ->
-                        TaskItemInteractive(item = task)
-                    }
+//                    Ttems.forEach { task ->
+//                        TaskItemInteractive(item = task)
+//                    }
                 }
             }
         }

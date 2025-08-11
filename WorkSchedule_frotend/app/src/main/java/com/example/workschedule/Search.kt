@@ -133,9 +133,9 @@ fun Search(navController: NavHostController) {
                         .padding(horizontal = 20.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Ttems.forEach { task ->
-                        TaskItemSimple(item = task)
-                    }
+//                    Ttems.forEach { task ->
+//                        TaskItemSimple(item = task)
+//                    }
                 }
             }
         }
