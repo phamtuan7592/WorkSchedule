@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -11,17 +12,35 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.workschedule.Components.*
+import com.example.workschedule.model.Schedule
+import com.example.workschedule.viewmodel.ScheduleViewModel
 import java.time.LocalDate
 import java.time.LocalDateTime
-
+import java.time.LocalTime
+import java.time.format.TextStyle
+import java.util.*
 
 @Composable
 fun Home(navController: NavController) {
+    val viewModel: ScheduleViewModel = viewModel()
+
+    // Load schedules
+    LaunchedEffect(Unit) {
+        viewModel.getSchedules()
+    }
+
+    val schedules by viewModel.schedule.collectAsState()
     val currentHour = remember { LocalDateTime.now().hour }
     val defaultTime = if (currentHour in 0..11) "Morning" else "Evening"
     var selectedTime by remember { mutableStateOf(defaultTime) }
+    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
+
+    val filteredTasks = remember(selectedDate, selectedTime, schedules) {
+        filterAndSortTasks(schedules, selectedDate, selectedTime)
+    }
 
 
     Box(
@@ -44,9 +63,13 @@ fun Home(navController: NavController) {
                     Column {
                         TopBar()
                         Spacer(modifier = Modifier.height(20.dp))
-                        WeeklyCalendar()
+                        WeeklyCalendar(
+                            selectedDate = selectedDate,
+                            onDateSelected = { selectedDate = it }
+                        )
                     }
 
+                    // Giữ nguyên các decorative elements
                     Column {
                         Image(
                             painter = painterResource(R.drawable.rectangle11),
@@ -162,7 +185,6 @@ fun Home(navController: NavController) {
                             .offset(x = 350.dp, y = 13.dp),
                         contentScale = ContentScale.Fit
                     )
-
                 }
             }
 
@@ -174,9 +196,11 @@ fun Home(navController: NavController) {
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     TimeSelector(selectedTime = selectedTime, onTimeSelected = { selectedTime = it })
-//                    Ttems.forEach { task ->
-//                        TaskItemInteractive(item = task)
-//                    }
+
+                    // Hiển thị các task đã lọc
+                    filteredTasks.forEach { task ->
+                        TaskItemInteractive(item = task)
+                    }
                 }
             }
         }

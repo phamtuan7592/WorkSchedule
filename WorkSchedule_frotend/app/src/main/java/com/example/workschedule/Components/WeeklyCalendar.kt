@@ -12,20 +12,24 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.workschedule.model.Schedule
 import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.TextStyle
 import java.util.*
 
 @Composable
-fun WeeklyCalendar(modifier: Modifier = Modifier) {
+fun WeeklyCalendar(
+    selectedDate: LocalDate,
+    onDateSelected: (LocalDate) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val today = LocalDate.now()
     val startOfWeek = today.with(DayOfWeek.MONDAY)
     val weekDates = (0..6).map { startOfWeek.plusDays(it.toLong()) }
-
-    var selectedDate by remember { mutableStateOf(today) }
 
     Row(
         modifier = modifier
@@ -45,7 +49,7 @@ fun WeeklyCalendar(modifier: Modifier = Modifier) {
                         color = if (isSelected) Color(0xFF718A73) else Color.Transparent,
                         shape = RoundedCornerShape(12.dp)
                     )
-                    .clickable { selectedDate = date },
+                    .clickable { onDateSelected(date) },
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -118,3 +122,4 @@ fun TimeSelector(
         }
     }
 }
+
