@@ -14,7 +14,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.workschedule.Components.MonthCalendarScreen
 import com.example.workschedule.ui.theme.WorkScheduleTheme
+import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
@@ -65,5 +67,13 @@ fun AppNavigation(mainActivity: MainActivity) {
             val scheduleId = backStackEntry.arguments?.getString("scheduleId") ?: ""
             EditScheduleScreen(navController = navController, editId = scheduleId, mainActivity = mainActivity)
         }
+        composable("calendar/{date}") { backStackEntry ->
+            val dateArg = backStackEntry.arguments?.getString("date")
+            val selectedDate = dateArg?.let { LocalDate.parse(it) }
+            CalendarScreen(navController, selectedDate = selectedDate)
+        }
+        composable("calendar") { CalendarScreen(navController) }
+        composable("month_calendar") { MonthCalendarScreen(navController) }
+
     }
 }

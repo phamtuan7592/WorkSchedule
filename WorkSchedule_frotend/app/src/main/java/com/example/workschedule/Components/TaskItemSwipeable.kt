@@ -39,6 +39,7 @@ fun TaskItemInteractive(item: Schedule, navController: NavController,  onDeleteC
     var isPlaying by remember { mutableStateOf(false) }
 
     SwipeableTaskItem(
+        //phát âm thanh
         item = item,
         swipeRightContent = {
             IconAction(
@@ -59,6 +60,7 @@ fun TaskItemInteractive(item: Schedule, navController: NavController,  onDeleteC
                     }
                 }
             )
+
             Spacer(Modifier.width(12.dp))
             IconAction(Icons.Default.Edit, "Edit", Color(0xFF00D26A),onClick = {
                 println("DEBUG: Navigating to edit screen with id = ${item.id}")

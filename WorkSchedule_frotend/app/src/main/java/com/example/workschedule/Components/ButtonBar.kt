@@ -47,6 +47,9 @@ fun ButtonBar(navController: NavController) {
                 painter = painterResource(R.drawable.today),
                 contentDescription = "Today",
                 modifier = Modifier.size(30.dp)
+                    .clickable{
+                        navController.navigate("calendar")
+                    }
             )
 
             Image(
