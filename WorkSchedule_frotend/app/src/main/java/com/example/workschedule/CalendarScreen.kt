@@ -1,7 +1,9 @@
 package com.example.workschedule
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,7 +20,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.workschedule.Components.TaskItemInteractive
+import com.example.workschedule.model.Schedule
+import com.example.workschedule.viewmodel.ScheduleViewModel
+import com.example.workschedule.Components.filterAndSortTasks
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -31,6 +38,15 @@ fun CalendarScreen(
     modifier: Modifier = Modifier,
     selectedDate: LocalDate? = null,
 ) {
+    val viewModel: ScheduleViewModel = viewModel()
+
+    // Load dữ liệu từ DB
+    LaunchedEffect(Unit) {
+        viewModel.getSchedules()
+    }
+
+    val schedules by viewModel.schedule.collectAsState()
+
     var startDate by remember { mutableStateOf((selectedDate ?: LocalDate.now()).with(DayOfWeek.MONDAY)) }
     val today = LocalDate.now()
 
@@ -38,7 +54,7 @@ fun CalendarScreen(
         DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy", Locale("vi"))
     )
 
-    val timeSlots = listOf("BUỔI SÁNG", "BUỔI TRƯA", "BUỔI TỐI")
+    val timeSlots = listOf("Morning", "Noon", "Evening") // đồng bộ với Home
 
     Column(
         modifier = modifier
@@ -46,7 +62,7 @@ fun CalendarScreen(
             .background(Color(0xFF2C3333))
             .padding(16.dp)
     ) {
-        // header
+        // ===== Header =====
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -56,10 +72,9 @@ fun CalendarScreen(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
-                    onClick = { navController.popBackStack(
-                        route = "home",
-                        inclusive = false
-                    ) }
+                    onClick = {
+                        navController.popBackStack("home", inclusive = false)
+                    }
                 ) {
                     Icon(
                         Icons.Default.ArrowBack,
@@ -85,7 +100,7 @@ fun CalendarScreen(
                 )
             }
         }
-        // hien tai
+
         Text(
             text = formattedDate,
             color = Color.White,
@@ -93,7 +108,7 @@ fun CalendarScreen(
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        //dieu huong tuan
+        // ===== Điều hướng tuần =====
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -101,7 +116,6 @@ fun CalendarScreen(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            //tuan truoc
             Button(
                 onClick = { startDate = startDate.minusWeeks(1) },
                 shape = RoundedCornerShape(16.dp),
@@ -113,7 +127,6 @@ fun CalendarScreen(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            //hom nay
             Button(
                 onClick = { startDate = LocalDate.now().with(DayOfWeek.MONDAY) },
                 shape = RoundedCornerShape(16.dp),
@@ -127,7 +140,6 @@ fun CalendarScreen(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            //tuan sau
             Button(
                 onClick = { startDate = startDate.plusWeeks(1) },
                 shape = RoundedCornerShape(16.dp),
@@ -138,11 +150,11 @@ fun CalendarScreen(
             }
         }
 
-        //lich su viec
+        // ===== Lịch tuần =====
         Row(
             modifier = Modifier.fillMaxSize()
         ) {
-            //thoi gian trong ngay
+            // Cột thời gian
             Column {
                 Box(
                     modifier = Modifier
@@ -173,7 +185,7 @@ fun CalendarScreen(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            //ngay trong tyan
+            // Cột ngày trong tuần
             val weekDates = (0..6).map { startDate.plusDays(it.toLong()) }
 
             LazyRow(
@@ -201,7 +213,7 @@ fun CalendarScreen(
                                     fontWeight = if (date == today) FontWeight.Bold else FontWeight.Normal
                                 )
                                 Text(
-                                    text = "${date.dayOfMonth}/${date.monthValue}/${date.year}",
+                                    text = "${date.dayOfMonth}/${date.monthValue}",
                                     color = Color.White,
                                     fontSize = 14.sp
                                 )
@@ -210,20 +222,34 @@ fun CalendarScreen(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        //o thoi gian
-                        timeSlots.forEach { _ ->
+                        // Các ô thời gian
+                        timeSlots.forEach { slot ->
+                            val slotTasks = filterAndSortTasks(schedules, date, slot)
+
                             Box(
                                 modifier = Modifier
                                     .width(150.dp)
-                                    .height(180.dp)
-                                    .background(
-                                        Color(0xFF91A19A),
-                                        shape = RoundedCornerShape(8.dp)
-                                    )
-                                    .padding(8.dp),
-                                contentAlignment = Alignment.Center
+                                    .height(180.dp) // khung cố định
+                                    .background(Color(0xFF91A19A), shape = RoundedCornerShape(8.dp))
+                                    .padding(4.dp),
                             ) {
-                                Text("", color = Color.White)
+                                if (slotTasks.isEmpty()) {
+                                    Text("—", color = Color.White, textAlign = TextAlign.Center)
+                                } else {
+                                    LazyColumn(
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                                        modifier = Modifier.fillMaxSize()
+                                    ) {
+                                        items(slotTasks) { task ->
+                                            ActivityItemCompact(
+                                                item = task,
+                                                onClick = {
+                                                    navController.navigate("detail/${task.id}")
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
                             }
                             Spacer(modifier = Modifier.height(8.dp))
                         }
@@ -231,5 +257,46 @@ fun CalendarScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ActivityItemCompact(
+    item: Schedule,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF2D2D2D), RoundedCornerShape(6.dp))
+            .padding(6.dp)
+            .heightIn(min = 40.dp, max = 60.dp), // giới hạn chiều cao
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = item.title,
+            color = Color.White,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            maxLines = 1
+        )
+        item.time?.let {
+            Text(
+                text = it,
+                color = Color(0xFFB0B0B0),
+                fontSize = 11.sp,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+// Hàm phân loại buổi
+fun matchTimeSlot(taskTime: String, slot: String): Boolean {
+    return when (slot) {
+        "Morning" -> taskTime.contains("AM", ignoreCase = true) || taskTime.contains("Sáng")
+        "Noon" -> taskTime.contains("Trưa")
+        "Evening" -> taskTime.contains("PM", ignoreCase = true) || taskTime.contains("Tối")
+        else -> false
     }
 }

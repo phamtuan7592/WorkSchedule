@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -90,6 +93,17 @@ fun Habits(navController: NavHostController) {
                             color = Color.White
                         )
                     }
+                    Icon(
+                        imageVector = Icons.Default.Home, // icon ngôi nhà của bạn
+                        contentDescription = "home",
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clickable {
+                                navController.navigate("home") {
+                                    popUpTo("home") { inclusive = true } // trở về home và xóa stack
+                                }
+                            },
+                        tint = Color.White)
                 }
             }
 

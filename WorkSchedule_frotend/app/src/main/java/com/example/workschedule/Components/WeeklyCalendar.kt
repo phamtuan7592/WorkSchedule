@@ -17,7 +17,6 @@ import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.format.TextStyle
 import java.util.*
 
@@ -75,14 +74,17 @@ fun TimeSelector(
     selectedTime: String,
     onTimeSelected: (String) -> Unit
 ) {
-    val options = listOf("Evening", "All Day", "Morning")
+    val options = listOf("Morning", "Noon", "Evening", "All Day")
     var isAutoSelected by remember { mutableStateOf(true) }
-
 
     LaunchedEffect(selectedTime) {
         while (true) {
             val hour = LocalDateTime.now().hour
-            val realTime = if (hour in 0..11) "Morning" else "Evening"
+            val realTime = when (hour) {
+                in 0..11 -> "Morning"
+                in 12..16 -> "Noon"
+                else -> "Evening"
+            }
 
             if (selectedTime == "All Day" && isAutoSelected) {
                 delay(30_000)
@@ -97,26 +99,29 @@ fun TimeSelector(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 32.dp, vertical = 16.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp), // khoảng cách đều nhau
         verticalAlignment = Alignment.CenterVertically
     ) {
         options.forEach { option ->
             Box(
                 modifier = Modifier
+                    .weight(1f) // chia đều chiều rộng cho tất cả
                     .clip(RoundedCornerShape(50))
                     .background(
                         if (option == selectedTime) Color(0xFF4A5A4A) else Color.Transparent
                     )
                     .clickable {
                         onTimeSelected(option)
-                        isAutoSelected = false // mark as user override
+                        isAutoSelected = false
                     }
-                    .padding(horizontal = 20.dp, vertical = 8.dp)
+                    .padding(vertical = 10.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = option,
-                    color = Color.White
+                    color = Color.White,
+                    fontSize = 14.sp
                 )
             }
         }

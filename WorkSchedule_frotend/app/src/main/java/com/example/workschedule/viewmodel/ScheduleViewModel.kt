@@ -244,38 +244,134 @@ class ScheduleViewModel(
         selectedDate: LocalDate?,
         selectedTime: LocalTime?,
         repeatEnabled: Boolean,
+        audioUri: Uri?, // file âm thanh mới
+        onSuccess: () -> Unit
+    ) {
+        if (!validateInput(context, title, description, selectedDays, selectedTime, repeatEnabled)) return
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            _isUploading.value = audioUri != null
+
+            if (audioUri != null) {
+                // Upload audio trước khi update
+                val filePath = audioUri.path ?: run {
+                    _isUploading.value = false
+                    _isLoading.value = false
+                    showToast(context, "Invalid audio file path")
+                    return@launch
+                }
+
+                Cloudinary.uploadAudio(
+                    filePath,
+                    onSuccess = { cloudinaryUrl ->
+                        updateScheduleToRepository(
+                            context, id, title, description, selectedDays,
+                            endDateEnabled, selectedDate, selectedTime,
+                            repeatEnabled, cloudinaryUrl, onSuccess
+                        )
+                        _isUploading.value = false
+                    },
+                    onError = { error ->
+                        showToast(context, "Audio upload failed, updating without audio")
+                        updateScheduleToRepository(
+                            context, id, title, description, selectedDays,
+                            endDateEnabled, selectedDate, selectedTime,
+                            repeatEnabled, audioUrl = null, onSuccess
+                        )
+                        _isUploading.value = false
+                    },
+                    onProgress = { bytes, totalBytes ->
+                        _uploadProgress.value = if (totalBytes > 0) bytes.toFloat() / totalBytes.toFloat() else 0f
+                    }
+                )
+            } else {
+                // Không có audio -> update trực tiếp
+                updateScheduleToRepository(
+                    context, id, title, description, selectedDays,
+                    endDateEnabled, selectedDate, selectedTime,
+                    repeatEnabled, audioUrl = null, onSuccess
+                )
+            }
+
+            _isLoading.value = false
+        }
+    }
+
+    // Hàm update lên repository
+    private fun updateScheduleToRepository(
+        context: Context,
+        id: String,
+        title: String,
+        description: String,
+        selectedDays: Set<String>,
+        endDateEnabled: Boolean,
+        selectedDate: LocalDate?,
+        selectedTime: LocalTime?,
+        repeatEnabled: Boolean,
+        audioUrl: String?,
         onSuccess: () -> Unit
     ) {
         viewModelScope.launch {
-            if (!validateInput(context, title, description, selectedDays, selectedTime, repeatEnabled)) return@launch
+            val updatedSchedule = Schedule(
+                id = id,
+                title = title,
+                description = description,
+                selectedDays = if (repeatEnabled) selectedDays else emptySet(),
+                endDate = if (endDateEnabled) selectedDate?.toString() else null,
+                time = selectedTime?.format(DateTimeFormatter.ofPattern("HH:mm")),
+                audioUrl = audioUrl
+            )
 
-            _isLoading.value = true
-            try {
-                val updatedSchedule = Schedule(
-                    id = id,
-                    title = title,
-                    description = description,
-                    selectedDays = if (repeatEnabled) selectedDays else emptySet(),
-                    endDate = if (endDateEnabled) selectedDate?.toString() else null,
-                    time = selectedTime?.format(DateTimeFormatter.ofPattern("HH:mm")),
-                )
+            val success = repository.updateSchedule(id, updatedSchedule)
 
-                val success = repository.updateSchedule(id, updatedSchedule)
-
-                if (success) {
-                    showToast(context, "Schedule updated successfully")
-                    getSchedules() // Refresh list
-                    onSuccess()
-                } else {
-                    showToast(context, "Failed to update schedule")
-                }
-            } catch (e: Exception) {
-                showToast(context, "Update failed: ${e.message}")
-            } finally {
-                _isLoading.value = false
+            if (success) {
+                showToast(context, "Schedule updated successfully")
+                getSchedules()
+                onSuccess()
+            } else {
+                showToast(context, "Failed to update schedule")
             }
         }
     }
+
+
+
+    // Hàm tách riêng để thực hiện update schedule với audioUrl đã upload (hoặc null)
+    private suspend fun performUpdateSchedule(
+        context: Context,
+        id: String,
+        title: String,
+        description: String,
+        selectedDays: Set<String>,
+        endDateEnabled: Boolean,
+        selectedDate: LocalDate?,
+        selectedTime: LocalTime?,
+        repeatEnabled: Boolean,
+        audioUrl: String?,
+        onSuccess: () -> Unit
+    ) {
+        val updatedSchedule = Schedule(
+            id = id,
+            title = title,
+            description = description,
+            selectedDays = if (repeatEnabled) selectedDays else emptySet(),
+            endDate = if (endDateEnabled) selectedDate?.toString() else null,
+            time = selectedTime?.format(DateTimeFormatter.ofPattern("HH:mm")),
+            audioUrl = audioUrl // Cập nhật audioUrl mới
+        )
+
+        val success = repository.updateSchedule(id, updatedSchedule)
+
+        if (success) {
+            showToast(context, "Schedule updated successfully")
+            getSchedules() // refresh danh sách
+            onSuccess()
+        } else {
+            showToast(context, "Failed to update schedule")
+        }
+    }
+
 
     private fun validateInput(
         context: Context,

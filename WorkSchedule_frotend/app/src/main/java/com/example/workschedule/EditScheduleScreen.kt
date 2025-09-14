@@ -231,6 +231,7 @@ fun EditScheduleScreen(
                                 selectedDate = selectedDate,
                                 selectedTime = selectedTime,
                                 repeatEnabled = repeatEnabled,
+                                audioUri = audioUri,
                                 onSuccess = {
                                     navController.popBackStack()
                                 }

@@ -28,15 +28,17 @@ import java.util.Locale
                 )
     }
 
-    fun matchesSelectedTime(schedule: Schedule, selectedTime: String): Boolean {
-        val taskTime = LocalTime.parse(schedule.time ?: "00:00")
-        return when (selectedTime) {
-            "All Day" -> true
-            "Morning" -> taskTime.isBefore(LocalTime.NOON)
-            "Evening" -> !taskTime.isBefore(LocalTime.NOON)
-            else -> true
-        }
+fun matchesSelectedTime(schedule: Schedule, selectedTime: String): Boolean {
+    val taskTime = LocalTime.parse(schedule.time ?: "00:00")
+    return when (selectedTime) {
+        "All Day" -> true
+        "Morning" -> taskTime.isBefore(LocalTime.NOON) // 00:00–11:59
+        "Noon" -> taskTime >= LocalTime.NOON && taskTime.isBefore(LocalTime.of(17, 0)) // 12:00–16:59
+        "Evening" -> taskTime >= LocalTime.of(17, 0) // 17:00+
+        else -> true
     }
+}
+
 
 fun filterSchedules(searchText: String, schedules: List<Schedule>): List<Schedule> {
     return if (searchText.isBlank()) {
